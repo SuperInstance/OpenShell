@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Wrapper for holonomy-consensus — GL(9) zero-holonomy consensus"
 license = "Apache-2.0"
+keywords = ['holonomy-consensus', 'zero-holonomy', 'gl9', 'byzantine-fault-tolerance']
 repository = "https://github.com/SuperInstance/OpenShell"
 [dependencies]
 holonomy-consensus = { path = "../../vendored/holonomy-consensus" }

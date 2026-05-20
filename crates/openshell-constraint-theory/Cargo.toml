@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Wrapper for constraint-theory-ecosystem — 62B checks/sec, formally proven"
 license = "Apache-2.0"
+keywords = ['constraint-theory', 'cdcl', 'avx512', 'jit', 'formal-verification']
 repository = "https://github.com/SuperInstance/OpenShell"
 [dependencies]
 constraint-theory-ecosystem = { path = "../../vendored/constraint-theory-ecosystem" }

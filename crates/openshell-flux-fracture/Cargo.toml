@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Wrapper for flux-fracture — BFS fracture + bitwise OR coalescence"
 license = "MIT"
+keywords = ['flux-fracture', 'fracture-search', 'bitwise', 'fleet-topology']
 repository = "https://github.com/SuperInstance/OpenShell"
 [dependencies]
 flux-fracture = { path = "../../vendored/flux-fracture" }

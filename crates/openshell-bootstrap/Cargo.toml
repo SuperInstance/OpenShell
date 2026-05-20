@@ -6,6 +6,7 @@ name = "openshell-bootstrap"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+keywords = ['bootstrap', 'openshell']
 repository.workspace = true
 rust-version.workspace = true
 

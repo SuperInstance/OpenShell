@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Wrapper for pythagorean48-codes — 48-dir trust encoding"
 license = "Apache-2.0"
+keywords = ['pythagorean48', 'trust-encoding', '48-dir', 'drift-free']
 repository = "https://github.com/SuperInstance/OpenShell"
 [dependencies]
 pythagorean48-codes = { path = "../../vendored/pythagorean48-codes" }

@@ -17,7 +17,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Dial, Inference, Room, SignalChain,
+    Dial, Inference, SignalChain,
     constraint::{SplineConstraint, ViolationSeverity},
 };
 

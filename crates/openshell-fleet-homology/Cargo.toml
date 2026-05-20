@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Wrapper for fleet-homology — H1 cohomology for fleet knowledge graphs"
 license = "Apache-2.0"
+keywords = ['fleet-homology', 'betti-numbers', 'h1-cohomology', 'knowledge-graph']
 repository = "https://github.com/SuperInstance/OpenShell"
 [dependencies]
 fleet-homology = { path = "../../vendored/fleet-homology" }

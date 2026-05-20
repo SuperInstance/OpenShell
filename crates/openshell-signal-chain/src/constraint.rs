@@ -20,7 +20,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Dial, SignalChainError};
+use crate::Dial;
 
 /// A constraint with curvature — bounds that know their own shape.
 ///

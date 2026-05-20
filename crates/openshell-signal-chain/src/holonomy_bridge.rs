@@ -29,7 +29,7 @@
 //! - **β₁ > V - 2**: Over-constrained — emergence detected
 
 use serde::{Deserialize, Serialize};
-use crate::{Dial, SignalChainError};
+use crate::Dial;
 
 /// Holonomy room status — mirrors ConsensusResult from holonomy-consensus.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -90,7 +90,7 @@ impl BettiResult {
         } else {
             0
         };
-        ((expected, self.edge_count, expected == self.edge_count))
+        (expected, self.edge_count, expected == self.edge_count)
     }
 }
 
@@ -146,7 +146,7 @@ impl HolonomyRoom {
     }
 
     /// Add a connection between two tiles (adds one edge).
-    pub fn connect(&mut self, tile_a: usize, tile_b: usize) {
+    pub fn connect(&mut self, _tile_a: usize, _tile_b: usize) {
         self.add_edge();
     }
 

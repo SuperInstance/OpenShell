@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Wrapper for flux-vm-v3 — proof-carrying constraint VM"
 license = "Apache-2.0"
+keywords = ['flux-vm', 'constraint-vm', 'proof-carrying', 'dal-a']
 repository = "https://github.com/SuperInstance/OpenShell"
 [dependencies]
 flux-vm-v3 = { path = "../../vendored/flux-vm-v3" }

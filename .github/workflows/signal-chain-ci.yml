@@ -6,6 +6,7 @@ name: Signal Chain CI
 on:
   push:
     branches:
+      - main
       - signal-chain-integration
   pull_request:
     branches:
@@ -25,6 +26,13 @@ permissions:
   packages: read
 
 jobs:
+  fmt:
+    name: cargo fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - run: cargo fmt -p openshell-signal-chain -- --check
+
   ci:
     name: ${{ matrix.job }} @ ${{ matrix.os }}
     runs-on: ${{ matrix.runner }}
@@ -47,7 +55,7 @@ jobs:
           - os: ubuntu-latest
             runner: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            job: test-arm64
+            job: build-arm64
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -63,10 +71,13 @@ jobs:
         run: cargo check -p openshell-signal-chain --target "${{ matrix.target }}"
 
       - name: cargo test
+        if: matrix.job != 'build-arm64'
         run: cargo test -p openshell-signal-chain --target "${{ matrix.target }}"
 
       - name: cargo test (all features)
+        if: matrix.job != 'build-arm64'
         run: cargo test -p openshell-signal-chain --all-features --target "${{ matrix.target }}"
 
       - name: cargo clippy
+        if: matrix.job != 'build-arm64'
         run: cargo clippy -p openshell-signal-chain --target "${{ matrix.target }}" -- -D warnings

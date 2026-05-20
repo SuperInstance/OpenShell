@@ -6,29 +6,19 @@ name = "openshell-signal-chain"
 version = "0.1.0"
 edition = "2021"
 description = "Signal Chain Thesis - dial between hard-snapped algorithms and soft-inferenced models"
+repository = "https://github.com/SuperInstance/OpenShell"
+license = "Apache-2.0"
+keywords = ["signal-chain", "dial", "inference", "knowledge-graph", "openshell"]
+categories = ["data-structures", "science"]
+readme = "README.md"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tracing = "0.1"
 thiserror = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1.0", features = ["full"] }
 
 [dev-dependencies]
-criterion = "0.5"
-
-[[example]]
-name = "basic_dial"
-path = "examples/basic_dial.rs"
-
-[[example]]
-name = "signal_chain_room"
-path = "examples/signal_chain_room.rs"
-
-[[example]]
-name = "inference_routing"
-path = "examples/inference_routing.rs"
 
 [[test]]
 name = "test_signal_chain"

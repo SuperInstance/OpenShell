@@ -86,3 +86,7 @@ pub use constraint::{
     SplineConstraint, SplineResult, ConstraintViolation, ViolationSeverity,
     evaluate_spline, maritime_spline,
 };
+pub mod spline_connector;
+pub use spline_connector::{
+    SplineRoom, SplineChain, SplineEvaluation,
+};

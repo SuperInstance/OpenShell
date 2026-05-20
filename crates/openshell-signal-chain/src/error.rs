@@ -31,6 +31,10 @@ pub enum SignalChainError {
     #[error("Invalid dial value: {0}. Must be between 0.0 and 1.0")]
     InvalidDial(f64),
 
+    /// Room name was empty.
+    #[error("Room name cannot be empty")]
+    EmptyName,
+
     /// A requested room does not exist in the chain.
     ///
     /// Contains the room name that was not found.
@@ -48,4 +52,5 @@ pub enum SignalChainError {
     /// Contains a description of the cycle path.
     #[error("Cascade cycle detected: {0}")]
     CascadeCycle(String),
+
 }

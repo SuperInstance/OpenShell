@@ -58,6 +58,7 @@
 mod dial;
 mod error;
 mod inference;
+mod query;
 mod room;
 mod signal_chain;
 mod snap;
@@ -65,6 +66,7 @@ mod snap;
 pub use dial::Dial;
 pub use error::SignalChainError;
 pub use inference::Inference;
+pub use query::QueryResult;
 pub use room::Room;
 pub use signal_chain::SignalChain;
 pub use snap::Snap;

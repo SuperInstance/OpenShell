@@ -28,7 +28,7 @@ fn main() {
     let mut bathy_room = Room::with_dial("bathy-data", DIAL_BATHY);
     bathy_room.add_absolute(serde_json::json!({"depth": 250.5, "sensor": "multibeam"}));
     bathy_room.add_inference(serde_json::json!({"seabed_type": "sand"}), 0.7);
-    println!("  Room dialect position: {:.1}", bathy_room.dialect.position);
+    println!("  Room dial position: {:.1}", bathy_room.dial_position.position);
 
     // 3. SignalChain with multiple rooms
     println!("\n--- 3. SignalChain ---");

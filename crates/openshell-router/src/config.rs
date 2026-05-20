@@ -118,7 +118,6 @@ pub struct ResolvedRoute {
     /// Per-request timeout for proxied inference calls.
     pub timeout: Duration,
     /// Inference level for this route (signal-chain dial position as 0.0-1.0)
-    #[serde(default)]
     pub inference_level: InferenceLevel,
 }
 

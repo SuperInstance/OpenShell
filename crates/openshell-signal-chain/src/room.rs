@@ -118,7 +118,7 @@ impl Room {
     pub fn cascade(&mut self, depth: usize) {
         if depth == 0 { return; }
         
-        for (name, child) in &mut self.children {
+        for (_name, child) in &mut self.children {
             // Snap top inferences from this room into child
             for inf in self.inferences.iter().take(2) {
                 if inf.confidence > 0.5 {

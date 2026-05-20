@@ -16,6 +16,19 @@ chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1.0", features = ["full"] }
 
 [dev-dependencies]
+criterion = "0.5"
+
+[[example]]
+name = "basic_dial"
+path = "examples/basic_dial.rs"
+
+[[example]]
+name = "signal_chain_room"
+path = "examples/signal_chain_room.rs"
+
+[[example]]
+name = "inference_routing"
+path = "examples/inference_routing.rs"
 
 [[test]]
 name = "test_signal_chain"

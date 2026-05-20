@@ -1,0 +1,146 @@
+# Bug Report Template for openshell-signal-chain
+
+name: Bug Report
+description: Report a bug in the openshell-signal-chain crate
+labels: ["bug", "signal-chain"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for reporting a bug!
+
+        Please fill out this template completely. Bugs with incomplete information may be closed.
+
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Provide minimal, reproducible code that demonstrates the bug.
+        Include enough code for someone to run and see the failure.
+      placeholder: |
+        1. Create a Room with ...
+        2. Add a snap/inference ...
+        3. Call query with ...
+        4. See error / unexpected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Expected X but got Y
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include error messages if applicable.
+      placeholder: |
+        Error: "..."
+        or: Got 3 results instead of 4
+    validations:
+      required: true
+
+  - type: input
+    id: rustc-version
+    attributes:
+      label: Rust/Cargo Version
+      description: Output of `rustc --version && cargo --version`
+      placeholder: rustc 1.88.0, cargo 1.88.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Operating system and architecture
+      options:
+        - Linux (x86_64)
+        - Linux (ARM64 / aarch64)
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: cargo-tree
+    attributes:
+      label: Cargo Tree Output
+      description: |
+        Run `cargo tree -p openshell-signal-chain` and paste the output.
+        This shows dependency versions and helps diagnose version conflicts.
+      placeholder: |
+        openshell-signal-chain v0.1.0
+        ├── serde v1.0
+        ...
+    validations:
+      required: true
+
+  - type: input
+    id: test-list
+    attributes:
+      label: Test Discovery
+      description: |
+        Run `cargo test -p openshell-signal-chain -- --list` and paste the output.
+        This verifies that tests are being discovered correctly.
+      placeholder: |
+        test test_dial_bounds ... ok
+        test test_room_snap ... ok
+        ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: debug-output
+    attributes:
+      label: Debug Output (Optional)
+      description: |
+        Run with `RUST_LOG=debug` and paste relevant output:
+        ```bash
+        RUST_LOG=debug cargo test -p openshell-signal-chain -- --nocapture 2>&1 | head -100
+        ```
+      placeholder: |
+        [DEBUG openshell_signal_chain::room] query: dial=0.5
+        [INFO openshell_signal_chain] found 3 results
+    validations:
+      required: false
+
+  - type: input
+    id: git-rev
+    attributes:
+      label: Git Revision
+      description: |
+        Run `git log --oneline -1` in the openshell-signal-chain directory.
+      placeholder: 52d4093 feat(openshell-router): add InferenceLevel enum
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context (Optional)
+      description: Any other information that might be relevant (workload, concurrency, etc.)
+      placeholder: |
+        This happens under heavy load / with 1000+ items / when using tokio::spawn ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checkbox
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate
+          required: true
+        - label: I tested with the latest version of openshell-signal-chain
+          required: true
+        - label: I included minimal, reproducible code
+          required: true

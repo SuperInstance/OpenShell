@@ -1,332 +1,86 @@
-# NVIDIA OpenShell
+# OpenConstruct
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/NVIDIA/OpenShell/blob/main/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-openshell-orange?logo=pypi)](https://pypi.org/project/openshell/)
-[![Security Policy](https://img.shields.io/badge/Security-Report%20a%20Vulnerability-red)](SECURITY.md)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://docs.nvidia.com/openshell/latest/index.html)
-[![Project Status](https://img.shields.io/badge/status-alpha-orange)](https://docs.nvidia.com/openshell/latest/about/release-notes.html)
-[![Signal Chain CI](https://github.com/NVIDIA/OpenShell/actions/workflows/signal-chain-ci.yml/badge.svg)](https://github.com/NVIDIA/OpenShell/actions/workflows/signal-chain-ci.yml)
+**Agent Onboarding in One Command.**
 
-OpenShell is the safe, private runtime for autonomous AI agents. It provides sandboxed execution environments that protect your data, credentials, and infrastructure — governed by declarative YAML policies that prevent unauthorized file access, data exfiltration, and uncontrolled network activity.
-
-> **Alpha software — single-player mode.** OpenShell is proof-of-life: one developer, one environment, one gateway. We are building toward multi-tenant enterprise deployments, but the starting point is getting your own environment up and running. Expect rough edges. Bring your agent.
-
-## The Signal Chain
-
-This fork of OpenShell includes the **signal-chain** crate, which provides spatial awareness for agents. The core insight:
-
-Every intelligent system needs a way to control the ratio of hard constraints vs. soft inference. OpenShell sandboxes already enforce hard constraints (filesystem, network, process). The signal chain adds explicit control over the inference layer.
-
-### The Dial
-
-A dial controls where a room sits on the hard-to-soft spectrum:
-
-```
-0.0 ████████████████████ 1.0
-    hard ←─────────────→ soft
+```bash
+curl -fsSL https://raw.githubusercontent.com/SuperInstance/OpenConstruct/main/install.sh | bash
 ```
 
-- **0.0** = deterministic, provable, certifiable. Theorem provers, FLUX ISA verification, policy enforcement.
-- **1.0** = probabilistic, generative, exploratory. Creative fill, hypothesis generation.
+## What It Does
 
-The dial is continuous. A room at 0.4 is mostly hard with some inference allowed. A room at 0.7 allows more extrapolation but still anchors to snaps.
-
-### Snaps and Inferences
-
-A **snap** is a hard-locked fact. Confidence = 1.0 means absolute ground truth. Once locked, snaps constrain all downstream inference.
-
-An **inference** is a soft extrapolation with its own confidence. Inferences can be elevated to snaps when verified.
-
-```rust
-use openshell_signal_chain::{Dial, Room, SignalChain, DIAL_FORMAL, DIAL_ANALYSIS};
-
-// A room at analysis level (0.4)
-let mut chain = SignalChain::new("fleet");
-let room = chain.room("drone-salvage");
-
-// Snap: bathydata from sonar (hard fact)
-room.add_snap(serde_json::json!({
-    "lat": 45.3, "lon": -122.8, "depth": 87.2, "material": "sediment"
-}), 1.0);
-
-// Inference: possible wreckage at coordinates (soft, needs verification)
-room.add_inference(
-    serde_json::json!({"hypothesis": "anchor at 45.5, -123.0"}),
-    0.7
-);
-
-// Query at formal level: snaps only
-let hard_facts = room.query(DIAL_FORMAL);
-
-// Query at analysis level: snaps + confident inferences
-let analysis = room.query(DIAL_ANALYSIS);
-
-// Query at exploratory level: all inferences
-let extrapolated = room.query(Dial::soft());
-```
-
-### Rooms as Spatial Anchors
-
-Every sandbox is a room. Each room has:
-- A dial position (default from global, overridable per room)
-- Snaps (hard constraints from policy, filesystem rules, credential bounds)
-- Inferences (accumulated knowledge, observations, extrapolations)
-
-The PLATO tile system provides the spatial graph. Rooms connect to neighboring rooms. Agents navigate the graph by querying at different dial levels.
-
-### Cascade
-
-Inferences can cascade through child rooms. Top inferences from a parent room propagate as snaps to children — the ideas flow through the chain, snapping at each level.
-
-This models how real knowledge works: a hypothesis becomes an anchor for the next level of reasoning.
+- **One-command install** — Rust, Python, Node, and the OpenConstruct CLI, all set up automatically
+- **5-phase onboarding wizard** — Identity, Senses, Fleet, Tick Board, Build — go from zero to a working agent
+- **Multi-language SDK** — Use OpenConstruct from Rust, Python, or Node.js with a shared C ABI core
 
 ## Quickstart
 
-### Prerequisites
-
-- **A supported host** — macOS, Windows with WSL 2, or Linux.
-- **A local runtime** — Docker, Podman, or host virtualization enabled for MicroVM-backed sandboxes.
-
-### Install
-
-**Binary (recommended):**
-
-```bash
-curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/main/install.sh | sh
+```
+1.  Install        →  curl ... | bash
+2.  Init           →  openconstruct init
+3.  Check senses   →  openconstruct sense list
+4.  Find fleet     →  openconstruct fleet discover
+5.  Post a tick    →  openconstruct tick post "hello world"
 ```
 
-**From PyPI (requires [uv](https://docs.astral.sh/uv/)):**
+## Architecture
 
-```bash
-uv tool install -U openshell
+```
+┌──────────────────────────────────────────────────────────┐
+│                    OpenConstruct CLI                      │
+│              (Rust binary — clap-based)                   │
+├──────────┬──────────┬──────────┬──────────┬──────────────┤
+│  init    │  sense   │  fleet   │  tick    │  room        │
+│  wizard  │  modules │  discover│  board   │  plato       │
+├──────────┴──────────┴──────────┴──────────┴──────────────┤
+│              openconstruct-abi (C shared lib)             │
+├───────────────┬──────────────────┬───────────────────────┤
+│  Rust client  │  Python client   │  Node.js client       │
+│  (cargo)      │  (pip)           │  (npm)                │
+└───────────────┴──────────────────┴───────────────────────┘
 ```
 
-Both methods install the latest stable release by default. To install a specific version, set `OPENSHELL_VERSION` (binary) or pin the version with `uv tool install openshell==<version>`. A [`dev` release](https://github.com/NVIDIA/OpenShell/releases/tag/dev) is also available that tracks the latest commit on `main`.
+## CLI Commands
 
-**Helm chart:**
+| Command | Description |
+|---------|-------------|
+| `openconstruct init` | Run the 5-phase onboarding wizard |
+| `openconstruct status` | Show current agent config and fleet status |
+| `openconstruct sense list` | Show available sense modules |
+| `openconstruct fleet discover` | Find other agents on the network |
+| `openconstruct tick post "msg"` | Post a tick to the board |
+| `openconstruct tick read` | Read recent ticks |
+| `openconstruct room create NAME` | Create a Plato room |
+| `openconstruct build MODULE` | Scaffold a new module from template |
+| `openconstruct publish` | Publish to crates.io / PyPI / npm |
 
-> **Experimental** — the Kubernetes deployment path is under active development. Expect rough edges and breaking changes.
-
-Deploy the OpenShell gateway into a Kubernetes cluster from the OCI chart published to GHCR:
-
-```bash
-helm install openshell oci://ghcr.io/nvidia/openshell/helm-chart
-```
-
-See [`deploy/helm/openshell/README.md`](deploy/helm/openshell/README.md) for available versions, dev tag conventions, and configuration.
-
-For deploying OpenShell on OpenShift, see [`deploy/helm/openshell/README.md#install-on-openshift`](deploy/helm/openshell/README.md#install-on-openshift).
-
-### Create a sandbox
+## Install from Source
 
 ```bash
-openshell sandbox create -- claude  # or opencode, codex, copilot
+git clone https://github.com/SuperInstance/OpenConstruct.git
+cd OpenConstruct
+make install
 ```
 
-The sandbox container includes the following tools by default:
+## Make Targets
 
-| Category   | Tools                                                    |
-| ---------- | -------------------------------------------------------- |
-| Agent      | `claude`, `opencode`, `codex`, `copilot`                 |
-| Language   | `python` (3.14), `node` (22)                             |
-| Developer  | `gh`, `git`, `vim`, `nano`                               |
-| Networking | `ping`, `dig`, `nslookup`, `nc`, `traceroute`, `netstat` |
+| Target | Description |
+|--------|-------------|
+| `make install` | Full install (deps + ABI + CLI + clients) |
+| `make test` | Run all tests |
+| `make cli` | Build the CLI binary |
+| `make abi` | Build the C shared library |
+| `make clean` | Clean build artifacts |
 
-For more details see https://github.com/NVIDIA/OpenShell-Community/tree/main/sandboxes/base.
+## Links
 
-### See network policy in action
+- **Deep docs:** [SuperInstance/openconstruct-docs](https://github.com/SuperInstance/openconstruct-docs)
+- **Module catalog:** [SuperInstance/openconstruct-hub](https://github.com/SuperInstance/openconstruct-hub)
+- **Report issues:** [GitHub Issues](https://github.com/SuperInstance/OpenConstruct/issues)
 
-Every sandbox starts with **minimal outbound access**. You open additional access with a short YAML policy that the proxy enforces at the HTTP method and path level, without restarting anything.
+## Part of [SuperInstance](https://github.com/SuperInstance)
 
-```bash
-# 1. Create a sandbox (starts with minimal outbound access)
-openshell sandbox create
-
-# 2. Inside the sandbox — blocked
-sandbox$ curl -sS https://api.github.com/zen
-curl: (56) Received HTTP code 403 from proxy after CONNECT
-
-# 3. Back on the host — apply a read-only GitHub API policy
-sandbox$ exit
-openshell policy set demo --policy examples/sandbox-policy-quickstart/policy.yaml --wait
-
-# 4. Reconnect — GET allowed, POST blocked by L7
-openshell sandbox connect demo
-sandbox$ curl -sS https://api.github.com/zen
-Anything added dilutes everything else.
-
-sandbox$ curl -sS -X POST https://api.github.com/repos/octocat/hello-world/issues -d '{"title":"oops"}'
-{"error":"policy_denied","detail":"POST /repos/octocat/hello-world/issues not permitted by policy"}
-```
-
-See the [full walkthrough](examples/sandbox-policy-quickstart/) or run the automated demo:
-
-```bash
-bash examples/sandbox-policy-quickstart/demo.sh
-```
-
-## How It Works
-
-OpenShell isolates each sandbox in its own container with policy-enforced egress routing. A lightweight gateway coordinates sandbox lifecycle, and every outbound connection is intercepted by the policy engine, which does one of three things:
-
-- **Allows** — the destination and binary match a policy block.
-- **Routes for inference** — strips caller credentials, injects backend credentials, and forwards to the managed model.
-- **Denies** — blocks the request and logs it.
-
-| Component          | Role                                                                                         |
-| ------------------ | -------------------------------------------------------------------------------------------- |
-| **Gateway**        | Control-plane API that coordinates sandbox lifecycle and acts as the auth boundary.          |
-| **Sandbox**        | Isolated runtime with container supervision and policy-enforced egress routing.              |
-| **Policy Engine**  | Enforces filesystem, network, and process constraints from application layer down to kernel. |
-| **Privacy Router** | Privacy-aware LLM routing that keeps sensitive context on sandbox compute.                   |
-
-OpenShell runs a gateway control plane that manages sandbox lifecycle through a configured compute driver. Supported compute platforms include Docker, Podman, MicroVM, and Kubernetes.
-
-### Signal Chain Integration
-
-The `openshell-signal-chain` crate adds the inference dial layer:
-
-- **Sandbox = Room**: Each sandbox has snaps (hard policy constraints) and inferences (accumulated knowledge)
-- **Router query at dial**: Inference routing can query at different dial levels — formal for policy, exploratory for creative tasks
-- **Prover = DIAL_FORMAL**: Policy verification uses hard (0.0) dial — theorem-proving level constraints
-
-This makes OpenShell's sandbox not just isolated, but **spatially aware**: agents know where they are in the constraint space, what's been established as fact, and how far they can extrapolate.
-
-## Protection Layers
-
-OpenShell applies defense in depth across four policy domains:
-
-| Layer      | What it protects                                    | When it applies             |
-| ---------- | --------------------------------------------------- | --------------------------- |
-| Filesystem | Prevents reads/writes outside allowed paths.        | Locked at sandbox creation. |
-| Network    | Blocks unauthorized outbound connections.           | Hot-reloadable at runtime.  |
-| Process    | Blocks privilege escalation and dangerous syscalls.  | Locked at sandbox creation. |
-| Inference  | Reroutes model API calls to controlled backends.    | Hot-reloadable at runtime.  |
-
-Policies are declarative YAML files. Static sections (filesystem, process) are locked at creation; dynamic sections (network, inference) can be hot-reloaded on a running sandbox with `openshell policy set`.
-
-## Providers
-
-Agents need credentials — API keys, tokens, service accounts. OpenShell manages these as **providers**: named credential bundles that are injected into sandboxes at creation. The CLI auto-discovers credentials for recognized agents (Claude, Codex, OpenCode, Copilot) from your shell environment, or you can create providers explicitly with `openshell provider create`. Credentials never leak into the sandbox filesystem; they are injected as environment variables at runtime.
-
-## GPU Support (Experimental)
-
-> **Experimental** — GPU passthrough works on supported hosts but is under active development. Expect rough edges and breaking changes.
-
-OpenShell can pass host GPUs into sandboxes for local inference, fine-tuning, or any GPU workload. Add `--gpu` when creating a sandbox:
-
-```bash
-openshell sandbox create --gpu --from [gpu-enabled-sandbox] -- claude
-```
-
-Docker-backed GPU sandboxes auto-select CDI when available and otherwise fall back to Docker's NVIDIA GPU request path (`--gpus all`). GPU intent is also inferred automatically for community images with `gpu` in the name.
-
-**Requirements:** NVIDIA drivers and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) must be installed on the host. The sandbox image itself must include the appropriate GPU drivers and libraries for your workload — the default `base` image does not. See the [BYOC example](https://github.com/NVIDIA/OpenShell/tree/main/examples/bring-your-own-container) for building a custom sandbox image with GPU support.
-
-## Supported Agents
-
-| Agent                                                         | Source                                                                           | Notes                                                                         |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | [`base`](https://github.com/NVIDIA/OpenShell-Community/tree/main/sandboxes/base) | Works out of the box. Provider uses `ANTHROPIC_API_KEY`.                      |
-| [OpenCode](https://opencode.ai/)                              | [`base`](https://github.com/NVIDIA/OpenShell-Community/tree/main/sandboxes/base) | Works out of the box. Provider uses `OPENAI_API_KEY` or `OPENROUTER_API_KEY`. |
-| [Codex](https://developers.openai.com/codex)                   | [`base`](https://github.com/NVIDIA/OpenShell-Community/tree/main/sandboxes/base) | Works out of the box. Provider uses `OPENAI_API_KEY`.                         |
-| [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli) | [`base`](https://github.com/NVIDIA/OpenShell-Community/tree/main/sandboxes/base) | Works out of the box. Provider uses `GITHUB_TOKEN` or `COPILOT_GITHUB_TOKEN`. |
-| [OpenClaw](https://openclaw.ai/)                              | [Community](https://github.com/NVIDIA/OpenShell-Community)                       | Launch with `openshell sandbox create --from openclaw`.                       |
-| [Ollama](https://ollama.com/)                                 | [Community](https://github.com/NVIDIA/OpenShell-Community)                       | Launch with `openshell sandbox create --from ollama`.                         |
-
-## Key Commands
-
-| Command                                                    | Description                                     |
-| ---------------------------------------------------------- | ----------------------------------------------- |
-| `openshell sandbox create -- <agent>`                      | Create a sandbox and launch an agent.           |
-| `openshell sandbox connect [name]`                         | SSH into a running sandbox.                     |
-| `openshell sandbox list`                                   | List all sandboxes.                             |
-| `openshell provider create --type [type]] --from-existing` | Create a credential provider from env vars.     |
-| `openshell policy set <name> --policy file.yaml`           | Apply or update a policy on a running sandbox.  |
-| `openshell policy get <name>`                              | Show the active policy.                         |
-| `openshell inference set --provider <p> --model <m>`       | Configure the `inference.local` endpoint.       |
-| `openshell logs [name] --tail`                             | Stream sandbox logs.                            |
-| `openshell term`                                           | Launch the real-time terminal UI for debugging.  |
-
-See the [full documentation](https://docs.nvidia.com/openshell/latest) for command guides, tutorials, and reference material.
-
-## Terminal UI
-
-OpenShell includes a real-time terminal dashboard for monitoring gateways, sandboxes, and providers — inspired by [k9s](https://k9scli.io/).
-
-```bash
-openshell term
-```
-
-<p align="center">
-  <img src="fern/assets/images/openshell-terminal.png" alt="OpenShell Terminal UI">
-</p>
-
-The TUI gives you a live, keyboard-driven view of your gateway and sandboxes. Navigate with `Tab` to switch panels, `j`/`k` to move through lists, `Enter` to select, and `:` for command mode. Gateway health and sandbox status auto-refresh every two seconds.
-
-## Community Sandboxes and BYOC
-
-Use `--from` to create sandboxes from the [OpenShell Community](https://github.com/NVIDIA/OpenShell-Community) catalog, a local directory, or a container image:
-
-```bash
-openshell sandbox create --from openclaw           # community catalog
-openshell sandbox create --from ./my-sandbox-dir   # local Dockerfile
-openshell sandbox create --from registry.io/img:v1 # container image
-```
-
-See the [community sandboxes](https://docs.nvidia.com/openshell/latest/sandboxes/community-sandboxes) catalog and the [BYOC example](https://github.com/NVIDIA/OpenShell/tree/main/examples/bring-your-own-container) for details.
-
-## Explore with Your Agent
-
-Clone the repo and point your coding agent at it. The project includes agent skills that can answer questions, walk you through workflows, and diagnose problems — no issue filing required.
-
-```bash
-git clone https://github.com/NVIDIA/OpenShell.git   # or git@github.com:NVIDIA/OpenShell.git
-cd OpenShell
-# Point your agent here — it will discover the skills in .agents/skills/ automatically
-```
-
-Your agent can load skills for CLI usage (`openshell-cli`), gateway troubleshooting (`debug-openshell-cluster`), inference troubleshooting (`debug-inference`), policy generation (`generate-sandbox-policy`), and more. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full skills table.
-
-## Built With Agents
-
-OpenShell is developed using the same agent-driven workflows it enables. The `.agents/skills/` directory contains workflow automation that powers the project's development cycle:
-
-- **Spike and build:** Investigate a problem with `create-spike`, then implement it with `build-from-issue` once a human approves.
-- **Triage and route:** Community issues are assessed with `triage-issue`, classified, and routed into the spike-build pipeline.
-- **Security review:** `review-security-issue` produces a severity assessment and remediation plan. `fix-security-issue` implements it.
-- **Policy authoring:** `generate-sandbox-policy` creates YAML policies from plain-language requirements or API documentation.
-
-All implementation work is human-gated — agents propose plans, humans approve, agents build. See [AGENTS.md](AGENTS.md) for the full workflow chain documentation.
-
-## Getting Help
-
-- **Questions and discussion:** [GitHub Discussions](https://github.com/NVIDIA/OpenShell/discussions)
-- **Bug reports:** [GitHub Issues](https://github.com/NVIDIA/OpenShell/issues) — use the bug report template
-- **Security vulnerabilities:** See [SECURITY.md](SECURITY.md) — do not use GitHub Issues
-- **Agent-assisted help:** Clone the repo and use the agent skills in `.agents/skills/` for self-service diagnostics
-
-## Learn More
-
-- [Full Documentation](https://docs.nvidia.com/openshell/latest/index.html) — overview, architecture, tutorials, and reference
-- [Quickstart](https://docs.nvidia.com/openshell/latest/get-started/quickstart) — detailed install and first sandbox walkthrough
-- [GitHub Sandbox Tutorial](https://docs.nvidia.com/openshell/latest/tutorials/github-sandbox) — end-to-end scoped GitHub repo access
-- [Architecture](https://github.com/NVIDIA/OpenShell/tree/main/architecture) — detailed architecture docs and design decisions
-- [Roadmap](https://github.com/orgs/NVIDIA/projects/233) — planned work and project priorities
-- [Support Matrix](https://docs.nvidia.com/openshell/latest/reference/support-matrix) — platforms, versions, and kernel requirements
-- [Brev Launchable](https://brev.nvidia.com/launchable/deploy/now?launchableID=env-3Ap3tL55zq4a8kew1AuW0FpSLsg) — try OpenShell on cloud compute without local setup
-- [Agent Instructions](AGENTS.md) — system prompt and workflow documentation for agent contributors
-
-## Contributing
-
-OpenShell is built agent-first — your agent is your first collaborator. Before opening issues or submitting code, point your agent at the repo and let it use the skills in `.agents/skills/` to investigate, diagnose, and prototype. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full agent skills table, contribution workflow, and development setup.
-
-## Notice and Disclaimer
-
-This software automatically retrieves, accesses or interacts with external materials. Those retrieved materials are not distributed with this software and are governed solely by separate terms, conditions and licenses. You are solely responsible for finding, reviewing and complying with all applicable terms, conditions, and licenses, and for verifying the security, integrity and suitability of any retrieved materials for your specific use case. This software is provided "AS IS", without warranty of any kind. The author makes no representations or warranties regarding any retrieved materials, and assumes no liability for any losses, damages, liabilities or legal consequences from your use or inability to use this software or any retrieved materials. Use this software and the retrieved materials at your own risk.
+OpenConstruct is the plug-and-play front door for the SuperInstance ecosystem. One command, everything connected.
 
 ## License
 
-This project is licensed under the [Apache License 2.0](https://github.com/NVIDIA/OpenShell/blob/main/LICENSE).
-
-Part of the [SuperInstance OpenConstruct](https://github.com/SuperInstance/OpenConstruct) ecosystem.
+Apache-2.0 — see [LICENSE](LICENSE).

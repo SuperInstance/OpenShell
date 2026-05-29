@@ -1,285 +1,88 @@
-# Contributing to OpenShell
+# Contributing to OpenConstruct
 
-OpenShell is built agent-first. We design systems and use agents to implement them. Your agent is your first collaborator — point it at this repo before opening issues, asking questions, or submitting code.
+Thanks for contributing! This doc covers how to contribute modules, bindings, docs, and code.
 
-## The Critical Rule
+## Quick Start
 
-**You must understand your code.** Using AI agents to write code is not just acceptable, it's how this project works. But you must be able to explain what your changes do and how they interact with the rest of the system. If you can't, don't submit it.
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/my-thing`)
+3. Make your changes
+4. Run `make test` — all tests must pass
+5. Open a PR against `main`
 
-Submitting agent-generated code without understanding it — regardless of how clean it looks — wastes maintainer time and will result in your PR being closed. Repeat offenders will be blocked from the project.
+## Ways to Contribute
 
-## AI Usage
+### Modules
+Sense modules live in `crates/` (Rust), `python/` (Python), or as standalone packages. Each module should:
+- Follow the module interface: `init()`, `start()`, `stop()`
+- Include at least one test
+- Document its config options in a README
 
-OpenShell is agent-first, not agent-only. The distinction matters:
+### Bindings
+Language bindings wrap the C ABI (`openconstruct-abi`). When adding a new language:
+- Implement the C FFI bindings
+- Add tests that exercise every ABI function
+- Include install instructions
 
-- **Do** use agents to explore the codebase, run diagnostics, generate code, and iterate on implementations.
-- **Do** use the skills in `.agents/skills/` — they exist to make your agent effective.
-- **Do** interrogate your agent until you understand every edge case and interaction in your changes.
-- **Don't** submit code you can't explain without your agent open.
-- **Don't** use agents as a substitute for understanding the system. Read the architecture docs.
+### Documentation
+Docs go in [openconstruct-docs](https://github.com/SuperInstance/openconstruct-docs). For in-repo docs:
+- Use clear, concise language
+- Include code examples
+- Keep the README as the front door — deep docs go in the docs repo
 
-## First-Time Contributors
+### Bug Reports
+- Search existing issues first
+- Include: OS, Rust version, steps to reproduce, expected vs actual behavior
+- Use the issue template if available
 
-We use a vouch system. This exists because AI makes it trivial to generate plausible-looking but low-quality contributions, and we can no longer trust by default.
+## Code Style
 
-1. Open a [Vouch Request](https://github.com/NVIDIA/OpenShell/discussions/new?category=vouch-request) discussion.
-2. Describe what you want to change and why.
-3. Write in your own words. AI-generated vouch requests will be denied.
-4. A maintainer will comment `/vouch` if approved.
-5. Once vouched, you can submit pull requests.
+**Rust:**
+- `cargo fmt` — no exceptions
+- `cargo clippy` — zero warnings
+- Edition 2021, MSRV 1.70+
 
-**If you are not vouched, any pull request you open will be automatically closed.** Org members and collaborators with push access bypass this check.
+**Python:**
+- Python 3.10+
+- `black` formatting
+- Type hints on all public APIs
 
-### Finding Work
+**Shell (install.sh):**
+- `shellcheck` clean
+- `set -euo pipefail`
+- Functions over inline code
 
-Issues labeled [`good-first-issue`](https://github.com/NVIDIA/OpenShell/issues?q=is%3Aissue+is%3Aopen+label%3Agood-first-issue) are scoped, well-documented, and friendly to new contributors. Start there. If you need guidance, comment on the issue.
+## Testing
 
-All open issues are actionable — if it's in the issue tracker, it's ready to be worked on.
-
-## Before You Open an Issue
-
-This project ships with [agent skills](#agent-skills-for-contributors) that can diagnose problems, explore the codebase, generate policies, and walk you through common workflows. Before filing an issue:
-
-1. Clone the repo and point your coding agent at it.
-2. Load the relevant skill - `debug-openshell-cluster` for gateway or deployment problems, `debug-inference` for inference setup problems, `openshell-cli` for usage questions, `generate-sandbox-policy` for policy help.
-3. Have your agent investigate. Let it run diagnostics, read the architecture docs, and attempt a fix.
-4. If the agent cannot resolve it, open an issue **with the agent's diagnostic output attached**. The issue template requires this.
-
-### When to Open an Issue
-
-- A real bug that your agent confirmed and could not fix.
-- A feature proposal with a design — not a "please build this" request.
-- An infrastructure problem that the gateway deployment troubleshooting skill could not resolve.
-- An inference setup problem that the `debug-inference` skill could not resolve.
-- Security vulnerabilities must follow [SECURITY.md](SECURITY.md) — **not** GitHub issues.
-
-### When NOT to Open an Issue
-
-- Questions about how things work — your agent can answer these from the codebase and architecture docs.
-- Configuration problems - your agent can diagnose these with `openshell-cli`, `debug-openshell-cluster`, and `debug-inference`.
-- "How do I..." requests — the skills cover CLI usage, policy generation, TUI development, and more.
-
-## Agent Skills for Contributors
-
-Skills live in `.agents/skills/`. Your agent's harness can discover and load them natively. Here is the full inventory:
-
-| Category        | Skill                     | Purpose                                                                                             |
-| --------------- | ------------------------- | --------------------------------------------------------------------------------------------------- |
-| Getting Started | `openshell-cli`           | CLI usage, sandbox lifecycle, provider management, BYOC workflows                                   |
-| Getting Started | `debug-openshell-cluster` | Diagnose gateway deployment and health issues                                                       |
-| Getting Started | `debug-inference`         | Diagnose `inference.local`, host-backed local inference, and direct external inference setup issues |
-| Contributing    | `create-spike`            | Investigate a problem, produce a structured GitHub issue                                            |
-| Contributing    | `build-from-issue`        | Plan and implement work from a GitHub issue (maintainer workflow)                                   |
-| Contributing    | `create-github-issue`     | Create well-structured GitHub issues                                                                |
-| Contributing    | `create-github-pr`        | Create pull requests with proper conventions                                                        |
-| Reviewing       | `review-github-pr`        | Summarize PR diffs and key design decisions                                                         |
-| Reviewing       | `review-security-issue`   | Assess security issues for severity and remediation                                                 |
-| Reviewing       | `watch-github-actions`    | Monitor CI pipeline status and logs                                                                 |
-| Triage          | `triage-issue`            | Assess, classify, and route community-filed issues                                                  |
-| Platform        | `generate-sandbox-policy` | Generate YAML sandbox policies from requirements or API docs                                        |
-| Platform        | `tui-development`         | Development guide for the ratatui-based terminal UI                                                 |
-| Documentation   | `update-docs`             | Scan recent commits and draft doc updates for user-facing changes                                   |
-| Maintenance     | `sync-agent-infra`        | Detect and fix drift across agent-first infrastructure files                                        |
-| Reference       | `sbom`                    | Generate SBOMs and resolve dependency licenses                                                      |
-
-### Workflow Chains
-
-Skills connect into pipelines. Individual skill files don't describe these relationships.
-
-- **Community inflow:** `triage-issue` → `create-spike` → `build-from-issue`
-- **Internal development:** `create-spike` → `build-from-issue`
-- **Security:** `review-security-issue` → `fix-security-issue`
-- **Policy iteration:** `openshell-cli` → `generate-sandbox-policy`
-
-Workflow state labels use the `state:*` prefix, and security work uses `topic:security`. GitHub issue templates assign built-in issue types where applicable, and agent-created issues should use issue types or manual follow-up rather than type labels.
-New issues opened by users without `write`, `maintain`, or `admin` repository permission are automatically labeled `state:triage-needed` by the issue triage workflow.
-
-## Prerequisites
-
-Install [mise](https://mise.jdx.dev/). This is used to set up the development environment.
+- Every PR must pass `make test`
+- New features need tests
+- Bug fixes should include a regression test
+- Integration tests go in `e2e/`
 
 ```bash
-# Install mise (macOS/Linux)
-curl https://mise.run | sh
+make test          # run all tests
+cargo test         # Rust tests only
+pytest             # Python tests only
 ```
 
-After installing `mise`, activate it with `mise activate` or [add it to your shell](https://mise.jdx.dev/getting-started.html).
+## PR Process
 
-Shell setup examples:
+1. **Small PRs** — one concern per PR
+2. **Write a good description** — what, why, how
+3. **Link issues** — "Fixes #123" or "Related to #456"
+4. **Review** — at least one approval required
+5. **CI green** — all checks must pass
 
-```bash
-# Bash
-echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+## DCO
 
-# Fish
-echo '~/.local/bin/mise activate fish | source' >> ~/.config/fish/config.fish
+We use the Developer Certificate of Origin. Sign your commits:
 
-# Zsh
-echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc
+```
+git commit -s
 ```
 
-Project requirements:
+This adds a `Signed-off-by:` line confirming you have the right to submit the code.
 
-- Rust 1.88+
-- Python 3.12+
-- Docker (running)
-- Z3 solver library (for the policy prover crate)
+## Questions?
 
-### Z3 installation
-
-The `openshell-prover` crate links against the system Z3 library via pkg-config.
-
-```bash
-# macOS
-brew install z3
-
-# Ubuntu / Debian
-sudo apt install libz3-dev
-
-# Fedora
-sudo dnf install z3-devel
-```
-
-If you prefer not to install Z3 system-wide, you can compile it from source as a one-time step:
-
-```bash
-cargo build -p openshell-prover --features bundled-z3
-```
-
-## Getting Started
-
-```bash
-# One-time trust
-mise trust
-
-# Run a standalone gateway for local development
-mise run gateway
-```
-
-## Building the `openshell` CLI
-
-Inside this repository, `openshell` is a local shortcut script at `scripts/bin/openshell`. The script will
-
-1. Build `openshell-cli` if needed.
-2. Run the local debug CLI binary under `target/debug/openshell`.
-
-Because `mise` adds `scripts/bin` to `PATH` for this project, you can run `openshell` directly from the repo.
-
-```bash
-openshell --help
-openshell sandbox create -- codex
-```
-
-## Main Tasks
-
-These are the primary `mise` tasks for day-to-day development:
-
-| Task                 | Purpose                                                 |
-| -------------------- | ------------------------------------------------------- |
-| `mise run gateway`   | Run a standalone gateway for local development          |
-| `mise run sandbox`   | Create or reconnect to the dev sandbox                  |
-| `mise run test`      | Default test suite                                      |
-| `mise run e2e`       | Default end-to-end test lane                            |
-| `mise run ci`        | Full local CI checks (lint, compile/type checks, tests) |
-| `mise run docs`      | Validate Fern docs locally                              |
-| `mise run helm:docs` | Regenerate the Helm chart README                        |
-| `mise run clean`     | Clean build artifacts                                   |
-
-## Project Structure
-
-| Path            | Purpose                                       |
-| --------------- | --------------------------------------------- |
-| `crates/`       | Rust crates                                   |
-| `python/`       | Python SDK and bindings                       |
-| `proto/`        | Protocol buffer definitions                   |
-| `tasks/`        | `mise` task definitions and build scripts     |
-| `deploy/`       | Dockerfiles, Helm chart, Kubernetes manifests |
-| `docs/`         | Published Fern docs source, navigation, and content assets |
-| `fern/`         | Fern site config, components, and theme assets |
-| `architecture/` | Architecture docs and plans                   |
-| `rfc/`          | Request for Comments proposals                |
-| `.agents/`      | Agent skills and persona definitions          |
-
-## RFCs
-
-For cross-cutting architectural decisions, API contract changes, or process proposals that need broad consensus, use the RFC process. RFCs live in `rfc/` — copy the template, fill it in, and open a PR for discussion. See [rfc/README.md](rfc/README.md) for the full lifecycle and guidelines on when to write an RFC versus a spike issue or architecture doc.
-
-## Documentation
-
-If your change affects user-facing behavior (new flags, changed defaults, new features, bug fixes that contradict existing docs), update the relevant pages under `docs/` in the same PR and adjust `docs/index.yml` if navigation changes. For explicit navigation entries, keep `page:` aligned with `sidebar-title` when present and put relative `slug:` values in `docs/index.yml`. Reserve frontmatter `slug` for folder-discovered pages or absolute URL overrides.
-
-To ensure your doc changes follow NVIDIA documentation style, use the `update-docs` skill.
-It scans commits, identifies doc pages that need updates, and drafts content that follows the style guide in `docs/CONTRIBUTING.mdx`.
-
-To preview Fern docs locally:
-
-```bash
-mise run docs:serve
-```
-
-To run non-interactive validation:
-
-```bash
-mise run docs
-```
-
-PRs that touch `docs/**` or `fern/**` are validated by `.github/workflows/branch-docs.yml`, and they get a preview when `FERN_TOKEN` is available to the workflow.
-
-Fern docs publishing is handled by the `publish-fern-docs` job in `.github/workflows/release-tag.yml` when a release tag is created.
-
-`docs/` is the source-of-truth docs tree. `fern/` contains the site config, components, and theme assets that publish those pages.
-
-See [docs/CONTRIBUTING.mdx](docs/CONTRIBUTING.mdx) for the current docs authoring guide.
-
-## Pull Requests
-
-1. Create a feature branch from `main`.
-2. Make your changes with tests.
-3. Run `mise run ci` to verify.
-4. Open a PR using the `create-github-pr` skill or manually following the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
-
-### Commit Messages
-
-This project uses [Conventional Commits](https://www.conventionalcommits.org/). All commit messages must follow the format:
-
-```text
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-**Types:**
-
-- `feat` - New feature
-- `fix` - Bug fix
-- `docs` - Documentation only
-- `chore` - Maintenance tasks (dependencies, build config)
-- `refactor` - Code change that neither fixes a bug nor adds a feature
-- `test` - Adding or updating tests
-- `ci` - CI/CD changes
-- `perf` - Performance improvements
-
-**Examples:**
-
-```text
-feat(cli): add --verbose flag to openshell run
-fix(sandbox): handle timeout errors gracefully
-docs: update installation instructions
-chore(deps): bump tokio to 1.40
-```
-
-### DCO
-
-All human contributions must include a `Signed-off-by` line in each commit message. This certifies you have the right to submit the work under the project license. See the [Developer Certificate of Origin](https://developercertificate.org/). Dependabot-authored dependency update PRs are allowlisted because the bot cannot sign commits.
-
-```bash
-git commit -s -m "feat(sandbox): add new capability"
-```
-
-DCO sign-off is separate from cryptographic commit signing. CI requires signing for org members so that copy-pr-bot can mirror your PR automatically; see [CI.md](CI.md#commit-signing) for setup.
-
-## CI
-
-How PR CI runs, the `test:e2e` / `test:e2e-gpu` / `test:e2e-kubernetes` labels, copy-pr-bot, and commit-signing setup are documented in [CI.md](CI.md).
+Open an issue or start a discussion on [GitHub Discussions](https://github.com/SuperInstance/OpenConstruct/discussions).

@@ -3623,6 +3623,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "openshell-construct"
+version = "0.0.0"
+dependencies = [
+ "openshell-registry",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "uuid",
+]
+
+[[package]]
 name = "openshell-core"
 version = "0.0.0"
 dependencies = [
@@ -3820,6 +3831,15 @@ version = "0.1.0"
 dependencies = [
  "pythagorean48-codes",
  "serde",
+]
+
+[[package]]
+name = "openshell-registry"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

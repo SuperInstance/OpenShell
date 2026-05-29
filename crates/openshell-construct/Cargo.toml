@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "openshell-construct"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+keywords = ['construct', 'onboarding', 'openshell']
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+openshell-registry = { path = "../openshell-registry" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+
+[lints]
+workspace = true
